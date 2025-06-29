@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Elegante Kleurenwaaier</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f6f0fa;
+      color: #4a3f72;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .dropdown {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      width: 100%;
+    }
+    .dropdown-toggle {
+      background: #fff;
+      border: 2px solid #d4c0eb;
+      padding: 1rem;
+      border-radius: 16px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      color: #6a4b91;
+    }
+    .dropdown-options {
+      position: absolute;
+      width: 100%;
+      background: white;
+      border: 2px solid #d4c0eb;
+      border-top: none;
+      border-radius: 0 0 16px 16px;
+      z-index: 1000;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+    }
+    .dropdown-options.show {
+      display: block;
+    }
+    .dropdown-option {
+      padding: 0.8rem 1rem;
+      cursor: pointer;
+    }
+    .dropdown-option:hover {
+      background-color: #f3e8ff;
+    }
+    .subtype {
+      padding-left: 2rem;
+      font-style: italic;
+    }
+    .kleurenlijst {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 2rem;
+    }
+    .kleurvak {
+      border-radius: 24px;
+      padding: 4rem 2rem;
+      text-align: center;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      font-size: 1.2rem;
+    }
+    .kleurvak:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+    .fullscreen {
+      position: fixed;
+      inset: 0;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      font-size: 3rem;
+      font-weight: bold;
+      z-index: 2000;
+      color: #fff;
+      cursor: pointer;
+      text-shadow: 0 0 10px rgba(0,0,0,0.5);
+      padding: 1rem;
+      text-align: center;
+    }
+    .fullscreen.show {
+      display: flex;
+    }
+    #languageSelector {
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      border: 2px solid #d4c0eb;
+      background: white;
+      color: #6a4b91;
+      font-weight: bold;
+    }
+    @media (max-width: 600px) {
+      .kleurvak {
+        padding: 3rem 1rem;
+        font-size: 1rem;
+      }
+      .fullscreen {
+        font-size: 2rem;
+      }
+    }
+	footer {
+      position: fixed;
+	  bottom: 0;
+	  left: 0;
+	  width: 100%;
+	  font-size: 0.8rem;
+	  color: #666666;
+	  text-align: center;
+	  padding: 1rem 0;
+	  border-top: 1px solid #ddd;
+	  box-sizing: border-box;
+	  margin: 0;
+	  background: white;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <select id="languageSelector">
+    <option value="nl">Nederlands</option>
+    <option value="en">English</option>
+    <option value="de">Deutsch</option>
+    <option value="fr">Français</option>
+    <option value="it">Italiano</option>
+  </select>
+
+  <div class="dropdown">
+    <div class="dropdown-toggle" id="dropdownToggle">🌸 Kies jouw kleurtype</div>
+    <div class="dropdown-options" id="dropdownOptions"></div>
+  </div>
+  <div class="kleurenlijst" id="kleurenlijst"></div>
+</div>
+<div class="fullscreen" id="fullscreen"></div>
+
+    <!--&copy; 2025 KJR - All rights reserved.-->
+
+<script>
+const data = {
+  nl: {
+    types: {
+      "Lente": {
+        icon: "🌸",
+        algemeen: [
+          {name: "Licht Geel", hex: "#FFFACD"},
+          {name: "Perzik", hex: "#FFDAB9"},
+          {name: "Koraal", hex: "#FF7F50"},
+          {name: "Turkoois", hex: "#40E0D0"},
+          {name: "Helder Geel", hex: "#FFFF33"},
+          {name: "Roze", hex: "#FFB6C1"},
+        ],
+        subtypes: {
+          "Heldere Lente": [
+            {name: "Turkoois", hex: "#40E0D0"},
+            {name: "Helder Geel", hex: "#FFFF33"},
+            {name: "Roze", hex: "#FFB6C1"},
+            {name: "Licht Groen", hex: "#90EE90"},
+            {name: "Koraal", hex: "#FF7F50"},
+            {name: "Licht Blauw", hex: "#ADD8E6"},
+          ],
+          "Warme Lente": [
+            {name: "Oranje", hex: "#FFB347"},
+            {name: "Goud", hex: "#FFD700"},
+            {name: "Zalm", hex: "#E9967A"},
+            {name: "Goudgeel", hex: "#FFDF00"},
+            {name: "Koper", hex: "#B87333"},
+            {name: "Perzik", hex: "#FFDAB9"},
+          ],
+          "Lichte Lente": [
+            {name: "Limoen", hex: "#E0FFB3"},
+            {name: "Licht Aqua", hex: "#B3FFF5"},
+            {name: "Crème", hex: "#FFF5E1"},
+            {name: "Licht Geel", hex: "#FFFFE0"},
+            {name: "Pastel Groen", hex: "#77DD77"},
+            {name: "Pastel Blauw", hex: "#AEC6CF"},
+          ]
+        }
+      },
+      "Zomer": {
+        icon: "☀️",
+        algemeen: [
+          {name: "Lila", hex: "#E6E6FA"},
+          {name: "Roze", hex: "#FFC0CB"},
+          {name: "Licht Blauw", hex: "#ADD8E6"},
+          {name: "Lavendel", hex: "#D8BFD8"},
+          {name: "Pastel Blauw", hex: "#B0C4DE"},
+          {name: "Aquamarijn", hex: "#AFEEEE"},
+        ],
+        subtypes: {
+          "Koele Zomer": [
+            {name: "Lavendel", hex: "#D8BFD8"},
+            {name: "Pastel Blauw", hex: "#B0C4DE"},
+            {name: "Aquamarijn", hex: "#AFEEEE"},
+            {name: "Licht Grijs", hex: "#D3D3D3"},
+            {name: "Poeder Blauw", hex: "#B0E0E6"},
+            {name: "Pastel Paars", hex: "#CDA4DE"},
+          ],
+          "Lichte Zomer": [
+            {name: "Licht Paars", hex: "#F5E6FF"},
+            {name: "Zacht Roze", hex: "#FADADD"},
+            {name: "IJsblauw", hex: "#E0FFFF"},
+            {name: "Wit", hex: "#FFFFFF"},
+            {name: "Perzik", hex: "#FFDAB9"},
+            {name: "Zacht Lila", hex: "#E6E6FA"},
+          ],
+          "Zachte Zomer": [
+            {name: "Lavendel Grijs", hex: "#CBC3E3"},
+            {name: "Pastel Turkoois", hex: "#B0D0D3"},
+            {name: "Licht Paars", hex: "#E2CFEA"},
+            {name: "Beige", hex: "#F5F5DC"},
+            {name: "Pastel Groen", hex: "#98FB98"},
+            {name: "Zacht Grijs", hex: "#DCDCDC"},
+          ]
+        }
+      },
+      "Herfst": {
+        icon: "🍂",
+        algemeen: [
+          {name: "Koper", hex: "#CC7722"},
+          {name: "Olivijn", hex: "#8A9A5B"},
+          {name: "Baksteen", hex: "#E2725B"},
+          {name: "Oranje", hex: "#FF7518"},
+          {name: "Goud Bruin", hex: "#8B4000"},
+          {name: "Bruin", hex: "#A52A2A"},
+        ],
+        subtypes: {
+          "Warme Herfst": [
+            {name: "Oranje", hex: "#FF7518"},
+            {name: "Vurig Oranje", hex: "#FF6700"},
+            {name: "Roodbruin", hex: "#C1440E"},
+            {name: "Mosterd", hex: "#FFDB58"},
+            {name: "Goudgeel", hex: "#FFD700"},
+            {name: "Perzik", hex: "#FFDAB9"},
+          ],
+          "Diepe Herfst": [
+            {name: "Donker Bruin", hex: "#654321"},
+            {name: "Olivijn", hex: "#556B2F"},
+            {name: "Sienna", hex: "#A0522D"},
+            {name: "Bruin", hex: "#A52A2A"},
+            {name: "Bos Groen", hex: "#228B22"},
+            {name: "Bruin Rood", hex: "#8B4000"},
+          ],
+          "Zachte Herfst": [
+            {name: "Khaki", hex: "#C2B280"},
+            {name: "Koper", hex: "#B87333"},
+            {name: "Tan", hex: "#A67B5B"},
+            {name: "Beige", hex: "#F5F5DC"},
+            {name: "Tarwe", hex: "#F5DEB3"},
+            {name: "Burlywood", hex: "#DEB887"},
+          ]
+        }
+      },
+      "Winter": {
+        icon: "❄️",
+        algemeen: [
+          {name: "Licht Hemelsblauw", hex: "#A0D6FF"},
+          {name: "Rood", hex: "#FF0000"},
+          {name: "Zwart", hex: "#0A0A0A"},
+          {name: "Indigo", hex: "#4B0082"},
+          {name: "Diep Paars", hex: "#580F41"},
+          {name: "Blauwgrijs", hex: "#5F9EA0"},
+        ],
+        subtypes: {
+          "Koele Winter": [
+            {name: "Indigo", hex: "#4B0082"},
+            {name: "Diep Paars", hex: "#580F41"},
+            {name: "Blauwgrijs", hex: "#5F9EA0"},
+            {name: "Sneeuwwit", hex: "#FFFFFF"},
+            {name: "Staalblauw", hex: "#4682B4"},
+            {name: "IJsblauw", hex: "#AFEEEE"},
+          ],
+          "Diepe Winter": [
+            {name: "Navy Blauw", hex: "#001F3F"},
+            {name: "Sneeuwwit", hex: "#FFFFFF"},
+            {name: "Donkergrijs", hex: "#333333"},
+            {name: "Zwart", hex: "#000000"},
+            {name: "Paars", hex: "#7F00FF"},
+            {name: "Fuchsia", hex: "#FF00FF"},
+          ],
+          "Heldere Winter": [
+            {name: "Paars", hex: "#7F00FF"},
+            {name: "Licht Blauw", hex: "#D0F0FD"},
+            {name: "Fuchsia", hex: "#FF69B4"},
+            {name: "Zilver", hex: "#C0C0C0"},
+            {name: "Koraal", hex: "#FF7F50"},
+            {name: "Zwart", hex: "#0A0A0A"},
+          ]
+        }
+      }
+    }
+  },
+  en: {
+    types: {
+      "Spring": {
+        icon: "🌸",
+        algemeen: [
+          {name: "Light Yellow", hex: "#FFFACD"},
+          {name: "Peach", hex: "#FFDAB9"},
+          {name: "Coral", hex: "#FF7F50"},
+          {name: "Turquoise", hex: "#40E0D0"},
+          {name: "Bright Yellow", hex: "#FFFF33"},
+          {name: "Pink", hex: "#FFB6C1"},
+        ],
+        subtypes: {
+          "Bright Spring": [
+            {name: "Turquoise", hex: "#40E0D0"},
+            {name: "Bright Yellow", hex: "#FFFF33"},
+            {name: "Pink", hex: "#FFB6C1"},
+            {name: "Light Green", hex: "#90EE90"},
+            {name: "Coral", hex: "#FF7F50"},
+            {name: "Light Blue", hex: "#ADD8E6"},
+          ],
+          "Warm Spring": [
+            {name: "Orange", hex: "#FFB347"},
+            {name: "Gold", hex: "#FFD700"},
+            {name: "Salmon", hex: "#E9967A"},
+            {name: "Golden Yellow", hex: "#FFDF00"},
+            {name: "Copper", hex: "#B87333"},
+            {name: "Peach", hex: "#FFDAB9"},
+          ],
+          "Light Spring": [
+            {name: "Lime", hex: "#E0FFB3"},
+            {name: "Light Aqua", hex: "#B3FFF5"},
+            {name: "Cream", hex: "#FFF5E1"},
+            {name: "Light Yellow", hex: "#FFFFE0"},
+            {name: "Pastel Green", hex: "#77DD77"},
+            {name: "Pastel Blue", hex: "#AEC6CF"},
+          ]
+        }
+      },
+      "Summer": {
+        icon: "☀️",
+        algemeen: [
+          {name: "Lilac", hex: "#E6E6FA"},
+          {name: "Pink", hex: "#FFC0CB"},
+          {name: "Light Blue", hex: "#ADD8E6"},
+          {name: "Lavender", hex: "#D8BFD8"},
+          {name: "Pastel Blue", hex: "#B0C4DE"},
+          {name: "Aquamarine", hex: "#AFEEEE"},
+        ],
+        subtypes: {
+          "Cool Summer": [
+            {name: "Lavender", hex: "#D8BFD8"},
+            {name: "Pastel Blue", hex: "#B0C4DE"},
+            {name: "Aquamarine", hex: "#AFEEEE"},
+            {name: "Light Gray", hex: "#D3D3D3"},
+            {name: "Powder Blue", hex: "#B0E0E6"},
+            {name: "Pastel Purple", hex: "#CDA4DE"},
+          ],
+          "Light Summer": [
+            {name: "Light Purple", hex: "#F5E6FF"},
+            {name: "Soft Pink", hex: "#FADADD"},
+            {name: "Ice Blue", hex: "#E0FFFF"},
+            {name: "White", hex: "#FFFFFF"},
+            {name: "Peach", hex: "#FFDAB9"},
+            {name: "Soft Lilac", hex: "#E6E6FA"},
+          ],
+          "Soft Summer": [
+            {name: "Lavender Gray", hex: "#CBC3E3"},
+            {name: "Pastel Turquoise", hex: "#B0D0D3"},
+            {name: "Light Purple", hex: "#E2CFEA"},
+            {name: "Beige", hex: "#F5F5DC"},
+            {name: "Pastel Green", hex: "#98FB98"},
+            {name: "Soft Gray", hex: "#DCDCDC"},
+          ]
+        }
+      },
+      "Autumn": {
+        icon: "🍂",
+        algemeen: [
+          {name: "Copper", hex: "#CC7722"},
+          {name: "Olive", hex: "#8A9A5B"},
+          {name: "Brick", hex: "#E2725B"},
+          {name: "Orange", hex: "#FF7518"},
+          {name: "Gold Brown", hex: "#8B4000"},
+          {name: "Brown", hex: "#A52A2A"},
+        ],
+        subtypes: {
+          "Warm Autumn": [
+            {name: "Orange", hex: "#FF7518"},
+            {name: "Fiery Orange", hex: "#FF6700"},
+            {name: "Reddish Brown", hex: "#C1440E"},
+            {name: "Mustard", hex: "#FFDB58"},
+            {name: "Golden Yellow", hex: "#FFD700"},
+            {name: "Peach", hex: "#FFDAB9"},
+          ],
+          "Deep Autumn": [
+            {name: "Dark Brown", hex: "#654321"},
+            {name: "Olive", hex: "#556B2F"},
+            {name: "Sienna", hex: "#A0522D"},
+            {name: "Brown", hex: "#A52A2A"},
+            {name: "Forest Green", hex: "#228B22"},
+            {name: "Brown Red", hex: "#8B4000"},
+          ],
+          "Soft Autumn": [
+            {name: "Khaki", hex: "#C2B280"},
+            {name: "Copper", hex: "#B87333"},
+            {name: "Tan", hex: "#A67B5B"},
+            {name: "Beige", hex: "#F5F5DC"},
+            {name: "Wheat", hex: "#F5DEB3"},
+            {name: "Burlywood", hex: "#DEB887"},
+          ]
+        }
+      },
+      "Winter": {
+        icon: "❄️",
+        algemeen: [
+          {name: "Light Sky Blue", hex: "#A0D6FF"},
+          {name: "Red", hex: "#FF0000"},
+          {name: "Black", hex: "#0A0A0A"},
+          {name: "Indigo", hex: "#4B0082"},
+          {name: "Deep Purple", hex: "#580F41"},
+          {name: "Blue Gray", hex: "#5F9EA0"},
+        ],
+        subtypes: {
+          "Cool Winter": [
+            {name: "Indigo", hex: "#4B0082"},
+            {name: "Deep Purple", hex: "#580F41"},
+            {name: "Blue Gray", hex: "#5F9EA0"},
+            {name: "Snow White", hex: "#FFFFFF"},
+            {name: "Steel Blue", hex: "#4682B4"},
+            {name: "Ice Blue", hex: "#AFEEEE"},
+          ],
+          "Deep Winter": [
+            {name: "Navy Blue", hex: "#001F3F"},
+            {name: "Snow White", hex: "#FFFFFF"},
+            {name: "Dark Gray", hex: "#333333"},
+            {name: "Black", hex: "#000000"},
+            {name: "Purple", hex: "#7F00FF"},
+            {name: "Fuchsia", hex: "#FF00FF"},
+          ],
+          "Bright Winter": [
+            {name: "Purple", hex: "#7F00FF"},
+            {name: "Light Blue", hex: "#D0F0FD"},
+            {name: "Fuchsia", hex: "#FF69B4"},
+            {name: "Silver", hex: "#C0C0C0"},
+            {name: "Coral", hex: "#FF7F50"},
+            {name: "Black", hex: "#0A0A0A"},
+          ]
+        }
+      }
+    }
+  },
+  de: {
+    types: {
+      "Frühling": {
+        icon: "🌸",
+        algemeen: [
+          { "name": "Koralle", "hex": "#FF7F50" },
+          { "name": "Hellgrün", "hex": "#90EE90" },
+          { "name": "Gelbgrün", "hex": "#ADFF2F" },
+          { "name": "Aprikose", "hex": "#FBCEB1" },
+          { "name": "Türkis", "hex": "#40E0D0" },
+          { "name": "Hellblau", "hex": "#ADD8E6" }
+        ],
+        subtypes: {
+          "Frühling Warm": [
+            { "name": "Koralle", "hex": "#FF7F50" },
+            { "name": "Aprikose", "hex": "#FBCEB1" },
+            { "name": "Gelbgrün", "hex": "#ADFF2F" },
+            { "name": "Hellgrün", "hex": "#90EE90" },
+            { "name": "Hellblau", "hex": "#ADD8E6" },
+            { "name": "Türkis", "hex": "#40E0D0" }
+          ],
+          "Frühling Hell": [
+            { "name": "Hellblau", "hex": "#ADD8E6" },
+            { "name": "Türkis", "hex": "#40E0D0" },
+            { "name": "Aprikose", "hex": "#FBCEB1" },
+            { "name": "Gelbgrün", "hex": "#ADFF2F" },
+            { "name": "Koralle", "hex": "#FF7F50" },
+            { "name": "Hellgrün", "hex": "#90EE90" }
+          ],
+          "Frühling Klar": [
+            { "name": "Koralle", "hex": "#FF7F50" },
+            { "name": "Türkis", "hex": "#40E0D0" },
+            { "name": "Gelbgrün", "hex": "#ADFF2F" },
+            { "name": "Hellgrün", "hex": "#90EE90" },
+            { "name": "Aprikose", "hex": "#FBCEB1" },
+            { "name": "Hellblau", "hex": "#ADD8E6" }
+          ]
+        }
+      },
+      "Sommer": {
+        icon: "☀️",
+        algemeen: [
+          { "name": "Lavendel", "hex": "#E6E6FA" },
+          { "name": "Rosa", "hex": "#FFC0CB" },
+          { "name": "Hellblau", "hex": "#ADD8E6" },
+          { "name": "Flieder", "hex": "#D8BFD8" },
+          { "name": "Pastellblau", "hex": "#B0C4DE" },
+          { "name": "Aquamarin", "hex": "#AFEEEE" }
+        ],
+        subtypes: {
+          "Kühler Sommer": [
+            { "name": "Flieder", "hex": "#D8BFD8" },
+            { "name": "Pastellblau", "hex": "#B0C4DE" },
+            { "name": "Aquamarin", "hex": "#AFEEEE" },
+            { "name": "Hellgrau", "hex": "#D3D3D3" },
+            { "name": "Staubblau", "hex": "#B0E0E6" },
+            { "name": "Pastellviolett", "hex": "#CDA4DE" }
+          ],
+          "Heller Sommer": [
+            { "name": "Helles Violett", "hex": "#F5E6FF" },
+            { "name": "Zartrosa", "hex": "#FADADD" },
+            { "name": "Eisblau", "hex": "#E0FFFF" },
+            { "name": "Weiß", "hex": "#FFFFFF" },
+            { "name": "Pfirsich", "hex": "#FFDAB9" },
+            { "name": "Zartlila", "hex": "#E6E6FA" }
+          ],
+          "Weicher Sommer": [
+            { "name": "Graulavendel", "hex": "#CBC3E3" },
+            { "name": "Pastelltürkis", "hex": "#B0D0D3" },
+            { "name": "Helles Violett", "hex": "#E2CFEA" },
+            { "name": "Beige", "hex": "#F5F5DC" },
+            { "name": "Pastellgrün", "hex": "#98FB98" },
+            { "name": "Weiches Grau", "hex": "#DCDCDC" }
+          ]
+        }
+      },
+      "Herbst": {
+        icon: "🍂",
+        algemeen: [
+          { "name": "Kupfer", "hex": "#CC7722" },
+          { "name": "Olivgrün", "hex": "#8A9A5B" },
+          { "name": "Ziegelrot", "hex": "#E2725B" },
+          { "name": "Orange", "hex": "#FF7518" },
+          { "name": "Goldbraun", "hex": "#8B4000" },
+          { "name": "Braun", "hex": "#A52A2A" }
+        ],
+        subtypes: {
+          "Warmer Herbst": [
+            { "name": "Orange", "hex": "#FF7518" },
+            { "name": "Feuerorange", "hex": "#FF6700" },
+            { "name": "Rotbraun", "hex": "#C1440E" },
+            { "name": "Senf", "hex": "#FFDB58" },
+            { "name": "Goldgelb", "hex": "#FFD700" },
+            { "name": "Pfirsich", "hex": "#FFDAB9" }
+          ],
+          "Tiefer Herbst": [
+            { "name": "Dunkelbraun", "hex": "#654321" },
+            { "name": "Olivgrün", "hex": "#556B2F" },
+            { "name": "Siena", "hex": "#A0522D" },
+            { "name": "Braun", "hex": "#A52A2A" },
+            { "name": "Waldgrün", "hex": "#228B22" },
+            { "name": "Rotbraun", "hex": "#8B4000" }
+          ],
+          "Weicher Herbst": [
+            { "name": "Khaki", "hex": "#C2B280" },
+            { "name": "Kupfer", "hex": "#B87333" },
+            { "name": "Hellbraun", "hex": "#A67B5B" },
+            { "name": "Beige", "hex": "#F5F5DC" },
+            { "name": "Weizen", "hex": "#F5DEB3" },
+            { "name": "Sandelholz", "hex": "#DEB887" }
+          ]
+        }
+      },
+      "Winter": {
+        icon: "❄️",
+        algemeen: [
+          { "name": "Hellblau", "hex": "#A0D6FF" },
+          { "name": "Rot", "hex": "#FF0000" },
+          { "name": "Schwarz", "hex": "#0A0A0A" },
+          { "name": "Indigo", "hex": "#4B0082" },
+          { "name": "Dunkellila", "hex": "#580F41" },
+          { "name": "Blau-Grau", "hex": "#5F9EA0" }
+        ],
+        subtypes: {
+          "Kühler Winter": [
+            { "name": "Indigo", "hex": "#4B0082" },
+            { "name": "Dunkellila", "hex": "#580F41" },
+            { "name": "Blau-Grau", "hex": "#5F9EA0" },
+            { "name": "Schneeweiß", "hex": "#FFFFFF" },
+            { "name": "Stahlblau", "hex": "#4682B4" },
+            { "name": "Eisblau", "hex": "#AFEEEE" }
+          ],
+          "Tiefer Winter": [
+            { "name": "Marineblau", "hex": "#001F3F" },
+            { "name": "Schneeweiß", "hex": "#FFFFFF" },
+            { "name": "Dunkelgrau", "hex": "#333333" },
+            { "name": "Schwarz", "hex": "#000000" },
+            { "name": "Violett", "hex": "#7F00FF" },
+            { "name": "Fuchsia", "hex": "#FF00FF" }
+          ],
+          "Leuchtender Winter": [
+            { "name": "Violett", "hex": "#7F00FF" },
+            { "name": "Hellblau", "hex": "#D0F0FD" },
+            { "name": "Fuchsia", "hex": "#FF69B4" },
+            { "name": "Silber", "hex": "#C0C0C0" },
+            { "name": "Koralle", "hex": "#FF7F50" },
+            { "name": "Schwarz", "hex": "#0A0A0A" }
+          ]
+        }
+      }
+    }
+  },
+  fr: {
+    types: {
+      "Printemps": {
+        icon: "🌸",
+        algemeen: [
+          { "name": "Corail", "hex": "#FF7F50" },
+          { "name": "Vert Clair", "hex": "#90EE90" },
+          { "name": "Vert Jaune", "hex": "#ADFF2F" },
+          { "name": "Abricot", "hex": "#FBCEB1" },
+          { "name": "Turquoise", "hex": "#40E0D0" },
+          { "name": "Bleu Clair", "hex": "#ADD8E6" }
+        ],
+        subtypes: {
+          "Printemps Chaud": [
+            { "name": "Corail", "hex": "#FF7F50" },
+            { "name": "Abricot", "hex": "#FBCEB1" },
+            { "name": "Vert Jaune", "hex": "#ADFF2F" },
+            { "name": "Vert Clair", "hex": "#90EE90" },
+            { "name": "Bleu Clair", "hex": "#ADD8E6" },
+            { "name": "Turquoise", "hex": "#40E0D0" }
+          ],
+          "Printemps Clair": [
+            { "name": "Bleu Clair", "hex": "#ADD8E6" },
+            { "name": "Turquoise", "hex": "#40E0D0" },
+            { "name": "Abricot", "hex": "#FBCEB1" },
+            { "name": "Vert Jaune", "hex": "#ADFF2F" },
+            { "name": "Corail", "hex": "#FF7F50" },
+            { "name": "Vert Clair", "hex": "#90EE90" }
+          ],
+          "Printemps Vif": [
+            { "name": "Corail", "hex": "#FF7F50" },
+            { "name": "Turquoise", "hex": "#40E0D0" },
+            { "name": "Vert Jaune", "hex": "#ADFF2F" },
+            { "name": "Vert Clair", "hex": "#90EE90" },
+            { "name": "Abricot", "hex": "#FBCEB1" },
+            { "name": "Bleu Clair", "hex": "#ADD8E6" }
+          ]
+        }
+      },
+      "Été": {
+        icon: "☀️",
+        algemeen: [
+          { "name": "Lavande", "hex": "#E6E6FA" },
+          { "name": "Rose", "hex": "#FFC0CB" },
+          { "name": "Bleu Clair", "hex": "#ADD8E6" },
+          { "name": "Lavandin", "hex": "#D8BFD8" },
+          { "name": "Bleu Pastel", "hex": "#B0C4DE" },
+          { "name": "Aigue-marine", "hex": "#AFEEEE" }
+        ],
+        subtypes: {
+          "Été Frais": [
+            { "name": "Lavandin", "hex": "#D8BFD8" },
+            { "name": "Bleu Pastel", "hex": "#B0C4DE" },
+            { "name": "Aigue-marine", "hex": "#AFEEEE" },
+            { "name": "Gris Clair", "hex": "#D3D3D3" },
+            { "name": "Bleu Poudré", "hex": "#B0E0E6" },
+            { "name": "Violet Pastel", "hex": "#CDA4DE" }
+          ],
+          "Été Clair": [
+            { "name": "Violet Clair", "hex": "#F5E6FF" },
+            { "name": "Rose Doux", "hex": "#FADADD" },
+            { "name": "Bleu Glace", "hex": "#E0FFFF" },
+            { "name": "Blanc", "hex": "#FFFFFF" },
+            { "name": "Pêche", "hex": "#FFDAB9" },
+            { "name": "Lilac Doux", "hex": "#E6E6FA" }
+          ],
+          "Été Doux": [
+            { "name": "Lavande Grise", "hex": "#CBC3E3" },
+            { "name": "Turquoise Pastel", "hex": "#B0D0D3" },
+            { "name": "Violet Clair", "hex": "#E2CFEA" },
+            { "name": "Beige", "hex": "#F5F5DC" },
+            { "name": "Vert Pastel", "hex": "#98FB98" },
+            { "name": "Gris Doux", "hex": "#DCDCDC" }
+          ]
+        }
+      },
+      "Automne": {
+        icon: "🍂",
+        algemeen: [
+          { "name": "Cuivre", "hex": "#CC7722" },
+          { "name": "Olivine", "hex": "#8A9A5B" },
+          { "name": "Brique", "hex": "#E2725B" },
+          { "name": "Orange", "hex": "#FF7518" },
+          { "name": "Marron Doré", "hex": "#8B4000" },
+          { "name": "Marron", "hex": "#A52A2A" }
+        ],
+        subtypes: {
+          "Automne Chaud": [
+            { "name": "Orange", "hex": "#FF7518" },
+            { "name": "Orange Feu", "hex": "#FF6700" },
+            { "name": "Rouge Marron", "hex": "#C1440E" },
+            { "name": "Moutarde", "hex": "#FFDB58" },
+            { "name": "Jaune Doré", "hex": "#FFD700" },
+            { "name": "Pêche", "hex": "#FFDAB9" }
+          ],
+          "Automne Profond": [
+            { "name": "Marron Foncé", "hex": "#654321" },
+            { "name": "Olivine", "hex": "#556B2F" },
+            { "name": "Sienne", "hex": "#A0522D" },
+            { "name": "Marron", "hex": "#A52A2A" },
+            { "name": "Vert Forêt", "hex": "#228B22" },
+            { "name": "Rouge Marron", "hex": "#8B4000" }
+          ],
+          "Automne Doux": [
+            { "name": "Kaki", "hex": "#C2B280" },
+            { "name": "Cuivre", "hex": "#B87333" },
+            { "name": "Tan", "hex": "#A67B5B" },
+            { "name": "Beige", "hex": "#F5F5DC" },
+            { "name": "Blé", "hex": "#F5DEB3" },
+            { "name": "Bois de Santal", "hex": "#DEB887" }
+          ]
+        }
+      },
+      "Hiver": {
+        icon: "❄️",
+        algemeen: [
+          { "name": "Bleu Ciel Clair", "hex": "#A0D6FF" },
+          { "name": "Rouge", "hex": "#FF0000" },
+          { "name": "Noir", "hex": "#0A0A0A" },
+          { "name": "Indigo", "hex": "#4B0082" },
+          { "name": "Violet Foncé", "hex": "#580F41" },
+          { "name": "Bleu Gris", "hex": "#5F9EA0" }
+        ],
+        subtypes: {
+          "Hiver Frais": [
+            { "name": "Indigo", "hex": "#4B0082" },
+            { "name": "Violet Foncé", "hex": "#580F41" },
+            { "name": "Bleu Gris", "hex": "#5F9EA0" },
+            { "name": "Blanc Neige", "hex": "#FFFFFF" },
+            { "name": "Bleu Acier", "hex": "#4682B4" },
+            { "name": "Bleu Glace", "hex": "#AFEEEE" }
+          ],
+          "Hiver Profond": [
+            { "name": "Bleu Marine", "hex": "#001F3F" },
+            { "name": "Blanc Neige", "hex": "#FFFFFF" },
+            { "name": "Gris Foncé", "hex": "#333333" },
+            { "name": "Noir", "hex": "#000000" },
+            { "name": "Violet", "hex": "#7F00FF" },
+            { "name": "Fuchsia", "hex": "#FF00FF" }
+          ],
+          "Hiver Brillant": [
+            { "name": "Violet", "hex": "#7F00FF" },
+            { "name": "Bleu Clair", "hex": "#D0F0FD" },
+            { "name": "Fuchsia", "hex": "#FF69B4" },
+            { "name": "Argent", "hex": "#C0C0C0" },
+            { "name": "Corail", "hex": "#FF7F50" },
+            { "name": "Noir", "hex": "#0A0A0A" }
+          ]
+        }
+      }
+    }
+  }
+};
+  // Voor Duits, Frans en Italiaans kun je hetzelfde patroon volgen...
+
+
+const languageSelector = document.getElementById("languageSelector");
+const dropdownToggle = document.getElementById("dropdownToggle");
+const dropdownOptions = document.getElementById("dropdownOptions");
+const kleurenlijst = document.getElementById("kleurenlijst");
+const fullscreen = document.getElementById("fullscreen");
+
+let selectedType = null;
+let selectedSubType = null;
+let selectedLanguage = languageSelector.value;
+
+function renderDropdown() {
+  dropdownOptions.innerHTML = "";
+  const types = data[selectedLanguage].types;
+  for (const typeName in types) {
+    // Hoofdtype optie
+    const typeDiv = document.createElement("div");
+    typeDiv.classList.add("dropdown-option");
+    typeDiv.textContent = `${types[typeName].icon} ${typeName}`;
+    typeDiv.onclick = () => {
+      selectedType = typeName;
+      selectedSubType = null;
+      dropdownToggle.textContent = `${types[typeName].icon} ${typeName}`;
+      dropdownOptions.classList.remove("show");
+      renderColors();
+    };
+    dropdownOptions.appendChild(typeDiv);
+
+    // Subtypes tonen onder hoofdtype (ingezoomd)
+    const subtypes = types[typeName].subtypes;
+    if (subtypes) {
+      for (const subtypeName in subtypes) {
+        const subDiv = document.createElement("div");
+        subDiv.classList.add("dropdown-option", "subtype");
+        subDiv.textContent = subtypeName;
+        subDiv.onclick = () => {
+          selectedType = typeName;
+          selectedSubType = subtypeName;
+          dropdownToggle.textContent = `${types[typeName].icon} ${typeName} > ${subtypeName}`;
+          dropdownOptions.classList.remove("show");
+          renderColors();
+        };
+        dropdownOptions.appendChild(subDiv);
+      }
+    }
+  }
+}
+
+function renderColors() {
+  kleurenlijst.innerHTML = "";
+  if (!selectedType) return;
+
+  const types = data[selectedLanguage].types;
+  const typeData = types[selectedType];
+
+  let colorsToShow;
+  if (selectedSubType && typeData.subtypes && typeData.subtypes[selectedSubType]) {
+    colorsToShow = typeData.subtypes[selectedSubType];
+  } else {
+    colorsToShow = typeData.algemeen;
+  }
+
+  colorsToShow.forEach(color => {
+    const kleurDiv = document.createElement("div");
+    kleurDiv.classList.add("kleurvak");
+    kleurDiv.style.backgroundColor = color.hex;
+    kleurDiv.textContent = color.name;
+    kleurDiv.onclick = () => {
+      fullscreen.textContent = color.name;
+      fullscreen.style.backgroundColor = color.hex;
+      fullscreen.classList.add("show");
+    };
+    kleurenlijst.appendChild(kleurDiv);
+  });
+}
+
+dropdownToggle.onclick = () => {
+  dropdownOptions.classList.toggle("show");
+};
+
+fullscreen.onclick = () => {
+  fullscreen.classList.remove("show");
+};
+
+languageSelector.onchange = () => {
+  selectedLanguage = languageSelector.value;
+  selectedType = null;
+  selectedSubType = null;
+  dropdownToggle.textContent = {
+    nl: "🌸 Kies jouw kleurtype",
+    en: "🌸 Choose your color type",
+    de: "🌸 Wähle deinen Farbtyp",
+    fr: "🌸 Choisissez votre type de couleur",
+    it: "🌸 Scegli il tuo tipo di colore"
+  }[selectedLanguage] || "🌸 Kies jouw kleurtype";
+  dropdownOptions.classList.remove("show");
+  kleurenlijst.innerHTML = "";
+  renderDropdown();
+};
+
+// Initialiseren
+languageSelector.value = selectedLanguage;
+dropdownToggle.textContent = "🌸 Kies jouw kleurtype";
+renderDropdown();
+</script>
+</body>
+</html>
